@@ -1,7 +1,7 @@
-// API client helper for communication with backend
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 async function request(path: string, options: RequestInit = {}) {
-  // Relative path is resolved via Vite dev proxy or production router
-  const url = path; 
+  const url = `${API_BASE}${path}`; 
   const response = await fetch(url, {
     ...options,
     headers: {

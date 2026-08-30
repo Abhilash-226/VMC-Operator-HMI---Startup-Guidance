@@ -19,11 +19,14 @@ authRouter.post('/login', async (req, res) => {
 
     const session = result.rows[0];
 
-    // Set a cookie that client can read
+    // Set a cookie that client can read (SameSite=None; Secure in production for cross-origin hosting)
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('sessionId', session.id, {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
       httpOnly: false,
-      path: '/'
+      path: '/',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd
     });
 
     return res.json({
