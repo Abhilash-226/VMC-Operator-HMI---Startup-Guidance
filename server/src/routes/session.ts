@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
-import { getSessionWithItems } from '../services/sessionService.js';
+import { getSessionWithItems, advanceSessionStage } from '../services/sessionService.js';
 
 export const sessionRouter = Router();
 
@@ -16,3 +16,17 @@ sessionRouter.get('/', requireAuth, async (req: AuthenticatedRequest, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+sessionRouter.post('/advance', requireAuth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const result = await advanceSessionStage(req.sessionId!);
+    if (!result.success) {
+      return res.status(result.status).json({ error: result.error });
+    }
+    return res.json({ success: true, session: result.session });
+  } catch (err) {
+    console.error('Error advancing session:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
