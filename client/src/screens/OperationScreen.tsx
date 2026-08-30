@@ -82,24 +82,15 @@ export function OperationScreen({ session, startOperation, stopOperation, onRese
             )}
           </div>
 
-          {/* Operation metadata summary */}
-          <div className="operation-meta-grid">
-            <div className="meta-cell">
-              <span className="meta-label">Machine</span>
-              <strong className="meta-value">{session.machine_id}</strong>
-            </div>
-            <div className="meta-cell">
-              <span className="meta-label">Work Order</span>
-              <strong className="meta-value">{session.work_order}</strong>
-            </div>
-            <div className="meta-cell">
-              <span className="meta-label">Program</span>
-              <strong className="meta-value">O1042 Rev C</strong>
-            </div>
-            <div className="meta-cell">
-              <span className="meta-label">Material</span>
-              <strong className="meta-value">6061-T6 Al</strong>
-            </div>
+          {/* Operation metadata summary strip */}
+          <div className="operation-meta-strip">
+            <span>{session.machine_id}</span>
+            <span className="strip-divider">·</span>
+            <span>{session.work_order}</span>
+            <span className="strip-divider">·</span>
+            <span>O1042 Rev C</span>
+            <span className="strip-divider">·</span>
+            <span>6061-T6 Al</span>
           </div>
         </main>
       </div>

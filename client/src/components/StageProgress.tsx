@@ -48,9 +48,9 @@ export function StageProgress({ currentStage, onReset }: StageProgressProps) {
                 onReset();
               }
             }}
-            title="Reset Session"
+            title="Reset Session (For Review)"
           >
-            Reset
+            Reset (for review)
           </button>
         )}
       </div>
