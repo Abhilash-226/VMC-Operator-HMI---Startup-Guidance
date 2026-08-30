@@ -104,3 +104,96 @@ export async function advanceSessionStage(sessionId: string): Promise<{ success:
   return { success: true, session: updatedSession!, status: 200 };
 }
 
+export async function startOperation(sessionId: string): Promise<{ success: boolean; session?: Session; error?: string; status: number }> {
+  const session = await getSessionWithItems(sessionId);
+  if (!session) {
+    return { success: false, error: 'Session not found', status: 404 };
+  }
+
+  if (session.current_stage !== 'OPERATION') {
+    return { success: false, error: 'Cannot start operation: machine is not in the OPERATION stage yet', status: 400 };
+  }
+
+  if (session.operation_status === 'RUNNING') {
+    return { success: false, error: 'Operation is already running', status: 400 };
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Update status to RUNNING
+    await client.query(
+      `UPDATE sessions
+       SET operation_status = 'RUNNING', updated_at = NOW()
+       WHERE id = $1`,
+      [sessionId]
+    );
+
+    // Insert into log
+    await client.query(
+      `INSERT INTO operation_log (session_id, event, at)
+       VALUES ($1, 'START', NOW())`,
+      [sessionId]
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error starting operation:', err);
+    return { success: false, error: 'Internal server error during start', status: 500 };
+  } finally {
+    client.release();
+  }
+
+  const updatedSession = await getSessionWithItems(sessionId);
+  return { success: true, session: updatedSession!, status: 200 };
+}
+
+export async function stopOperation(sessionId: string): Promise<{ success: boolean; session?: Session; error?: string; status: number }> {
+  const session = await getSessionWithItems(sessionId);
+  if (!session) {
+    return { success: false, error: 'Session not found', status: 404 };
+  }
+
+  if (session.current_stage !== 'OPERATION') {
+    return { success: false, error: 'Cannot stop operation: machine is not in the OPERATION stage', status: 400 };
+  }
+
+  if (session.operation_status !== 'RUNNING') {
+    return { success: false, error: 'Operation is not currently running', status: 400 };
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Update status to STOPPED
+    await client.query(
+      `UPDATE sessions
+       SET operation_status = 'STOPPED', updated_at = NOW()
+       WHERE id = $1`,
+      [sessionId]
+    );
+
+    // Insert into log
+    await client.query(
+      `INSERT INTO operation_log (session_id, event, at)
+       VALUES ($1, 'STOP', NOW())`,
+      [sessionId]
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error stopping operation:', err);
+    return { success: false, error: 'Internal server error during stop', status: 500 };
+  } finally {
+    client.release();
+  }
+
+  const updatedSession = await getSessionWithItems(sessionId);
+  return { success: true, session: updatedSession!, status: 200 };
+}
+
+
