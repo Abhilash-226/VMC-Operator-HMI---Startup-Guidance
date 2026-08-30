@@ -1,122 +1,98 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useSession } from './state/useSession.js';
+import { LoginScreen } from './screens/LoginScreen.js';
+import { MachineChecksScreen } from './screens/MachineChecksScreen.js';
+import { ToolsScreen } from './screens/ToolsScreen.js';
+import { WorkpieceScreen } from './screens/WorkpieceScreen.js';
+import { ReadyReviewScreen } from './screens/ReadyReviewScreen.js';
+import { OperationScreen } from './screens/OperationScreen.js';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    session,
+    loading,
+    error,
+    isAuthenticated,
+    login,
+    confirmItem,
+    advanceStage,
+    startOperation,
+    stopOperation,
+    setError
+  } = useSession();
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Loading operator panel...</p>
+      </div>
+    );
+  }
 
-      <div className="ticks"></div>
+  if (!isAuthenticated || !session) {
+    return (
+      <LoginScreen
+        login={login}
+        loading={loading}
+        error={error}
+        setError={setError}
+      />
+    );
+  }
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+  // Render the current stage screen dynamically
+  switch (session.current_stage) {
+    case 'MACHINE_CHECKS':
+      return (
+        <MachineChecksScreen
+          session={session}
+          confirmItem={confirmItem}
+          advanceStage={advanceStage}
+          loading={loading}
+        />
+      );
+    case 'TOOLS':
+      return (
+        <ToolsScreen
+          session={session}
+          confirmItem={confirmItem}
+          advanceStage={advanceStage}
+          loading={loading}
+        />
+      );
+    case 'WORKPIECE':
+      return (
+        <WorkpieceScreen
+          session={session}
+          confirmItem={confirmItem}
+          advanceStage={advanceStage}
+          loading={loading}
+        />
+      );
+    case 'READY_REVIEW':
+      return (
+        <ReadyReviewScreen
+          session={session}
+          advanceStage={advanceStage}
+          loading={loading}
+        />
+      );
+    case 'OPERATION':
+      return (
+        <OperationScreen
+          session={session}
+          startOperation={startOperation}
+          stopOperation={stopOperation}
+          loading={loading}
+        />
+      );
+    default:
+      return (
+        <div className="error-container">
+          <p>Unknown stage: {(session as any).current_stage}</p>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      );
+  }
 }
 
-export default App
+export default App;
