@@ -567,17 +567,21 @@ body {
   to   { transform: scale(1);   opacity: 1; }
 }
 
-/* ── Primary action area (Bottom Anchored Full-Width) ─────── */
+/* ── Primary action area (Bottom Anchored Centered Box) ─────── */
 .primary-action-container {
   padding: var(--gap-md) var(--gap-lg);
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .primary-action-btn {
   width: 100%;
+  max-width: 480px;
   min-height: var(--touch-min);
   border: none;
   border-radius: var(--radius-md);
