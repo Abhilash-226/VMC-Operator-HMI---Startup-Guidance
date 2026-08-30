@@ -1,5 +1,6 @@
 interface StageProgressProps {
   currentStage: 'MACHINE_CHECKS' | 'TOOLS' | 'WORKPIECE' | 'READY_REVIEW' | 'OPERATION';
+  onReset?: () => void;
 }
 
 const STAGES: Array<{ key: string; label: string }> = [
@@ -10,7 +11,7 @@ const STAGES: Array<{ key: string; label: string }> = [
   { key: 'OPERATION', label: 'Operation' },
 ];
 
-export function StageProgress({ currentStage }: StageProgressProps) {
+export function StageProgress({ currentStage, onReset }: StageProgressProps) {
   const currentIndex = STAGES.findIndex(s => s.key === currentStage);
   
   return (
@@ -20,22 +21,38 @@ export function StageProgress({ currentStage }: StageProgressProps) {
           Stage {currentIndex + 1} of 5 · {STAGES[currentIndex]?.label}
         </span>
       </div>
-      <div className="stage-dots">
-        {STAGES.map((stage, idx) => {
-          let statusClass = 'dot-pending';
-          if (idx < currentIndex) {
-            statusClass = 'dot-completed';
-          } else if (idx === currentIndex) {
-            statusClass = 'dot-active';
-          }
-          return (
-            <div
-              key={stage.key}
-              className={`progress-dot ${statusClass}`}
-              title={stage.label}
-            />
-          );
-        })}
+      <div className="stage-progress-right">
+        <div className="stage-dots">
+          {STAGES.map((stage, idx) => {
+            let statusClass = 'dot-pending';
+            if (idx < currentIndex) {
+              statusClass = 'dot-completed';
+            } else if (idx === currentIndex) {
+              statusClass = 'dot-active';
+            }
+            return (
+              <div
+                key={stage.key}
+                className={`progress-dot ${statusClass}`}
+                title={stage.label}
+              />
+            );
+          })}
+        </div>
+        {onReset && (
+          <button
+            type="button"
+            className="progress-reset-btn"
+            onClick={() => {
+              if (window.confirm('Are you sure you want to reset this session? All checklist progress will be cleared.')) {
+                onReset();
+              }
+            }}
+            title="Reset Session"
+          >
+            Reset
+          </button>
+        )}
       </div>
     </div>
   );

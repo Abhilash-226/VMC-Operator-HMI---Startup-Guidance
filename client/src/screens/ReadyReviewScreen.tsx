@@ -5,6 +5,7 @@ import { PrimaryButton } from '../components/PrimaryButton.js';
 interface ScreenProps {
   session: Session;
   advanceStage: () => Promise<void>;
+  onReset: () => void;
   loading: boolean;
 }
 
@@ -33,7 +34,7 @@ function SummaryCard({ title, items }: SummaryCardProps) {
   );
 }
 
-export function ReadyReviewScreen({ session, advanceStage, loading }: ScreenProps) {
+export function ReadyReviewScreen({ session, advanceStage, onReset, loading }: ScreenProps) {
   const allItems = session.checklist_items || [];
   const machineItems = allItems.filter(i => i.stage === 'MACHINE_CHECKS');
   const toolItems = allItems.filter(i => i.stage === 'TOOLS');
@@ -45,7 +46,7 @@ export function ReadyReviewScreen({ session, advanceStage, loading }: ScreenProp
 
   return (
     <div className="screen-layout">
-      <StageProgress currentStage={session.current_stage} />
+      <StageProgress currentStage={session.current_stage} onReset={onReset} />
 
       <div className="screen-body">
         <header className="screen-header">

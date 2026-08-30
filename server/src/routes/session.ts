@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
-import { getSessionWithItems, advanceSessionStage } from '../services/sessionService.js';
+import { getSessionWithItems, advanceSessionStage, resetSession } from '../services/sessionService.js';
 
 export const sessionRouter = Router();
 
@@ -29,4 +29,18 @@ sessionRouter.post('/advance', requireAuth, async (req: AuthenticatedRequest, re
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+sessionRouter.post('/reset', requireAuth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const result = await resetSession(req.sessionId!);
+    if (!result.success) {
+      return res.status(result.status).json({ error: result.error });
+    }
+    return res.json({ success: true, session: result.session });
+  } catch (err) {
+    console.error('Error resetting session:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 

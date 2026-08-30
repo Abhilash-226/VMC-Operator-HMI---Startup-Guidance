@@ -28,7 +28,7 @@ export function useSession() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('sessionId'));
   const pollIntervalRef = useRef<number | null>(null);
 
   const fetchSession = useCallback(async () => {
@@ -38,7 +38,14 @@ export function useSession() {
       setIsAuthenticated(true);
       setError(null);
     } catch (err: any) {
-      if (err.message.includes('Unauthorized') || err.message.includes('401')) {
+      // Force logout on 401/Unauthorized
+      if (
+        err.message.includes('Unauthorized') || 
+        err.message.includes('401') ||
+        err.message.includes('token') ||
+        err.message.includes('cookie')
+      ) {
+        localStorage.removeItem('sessionId');
         setIsAuthenticated(false);
         setSession(null);
       } else {
@@ -54,6 +61,7 @@ export function useSession() {
     setError(null);
     try {
       const data = await api.login(pin);
+      localStorage.setItem('sessionId', data.sessionId);
       setSession(data.session);
       setIsAuthenticated(true);
       return true;
@@ -108,20 +116,38 @@ export function useSession() {
     }
   }, []);
 
+  const resetSession = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await api.resetSession();
+      setSession(result.session);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const logout = useCallback(() => {
     document.cookie = 'sessionId=; Max-Age=0; path=/';
+    localStorage.removeItem('sessionId');
     setSession(null);
     setIsAuthenticated(false);
   }, []);
 
   // Poll for changes when authenticated
   useEffect(() => {
-    fetchSession();
+    if (localStorage.getItem('sessionId')) {
+      fetchSession();
+    } else {
+      setLoading(false);
+    }
 
-    // Check for sessionId cookie or state
+    // Check for sessionId in localStorage or state
     const interval = window.setInterval(() => {
-      const hasSessionCookie = document.cookie.split(';').some(item => item.trim().startsWith('sessionId='));
-      if (hasSessionCookie) {
+      const hasSession = !!localStorage.getItem('sessionId');
+      if (hasSession) {
         fetchSession();
       } else {
         setLoading(false);
@@ -147,8 +173,9 @@ export function useSession() {
     advanceStage,
     startOperation,
     stopOperation,
+    resetSession,
     logout,
     refresh: fetchSession,
-    setError, // allow components to clear/set error
+    setError,
   };
 }

@@ -7,17 +7,18 @@ interface ScreenProps {
   session: Session;
   confirmItem: (id: string) => Promise<void>;
   advanceStage: () => Promise<void>;
+  onReset: () => void;
   loading: boolean;
 }
 
-export function WorkpieceScreen({ session, confirmItem, advanceStage, loading }: ScreenProps) {
+export function WorkpieceScreen({ session, confirmItem, advanceStage, onReset, loading }: ScreenProps) {
   const stageItems = (session.checklist_items || []).filter(item => item.stage === 'WORKPIECE');
 
   const allConfirmed = stageItems.length > 0 && stageItems.every(item => item.confirmed);
 
   return (
     <div className="screen-layout">
-      <StageProgress currentStage={session.current_stage} />
+      <StageProgress currentStage={session.current_stage} onReset={onReset} />
 
       <div className="screen-body">
         <header className="screen-header">

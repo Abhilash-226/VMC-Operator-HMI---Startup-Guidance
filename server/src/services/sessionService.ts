@@ -196,4 +196,51 @@ export async function stopOperation(sessionId: string): Promise<{ success: boole
   return { success: true, session: updatedSession!, status: 200 };
 }
 
+export async function resetSession(sessionId: string): Promise<{ success: boolean; session?: Session; error?: string; status: number }> {
+  const session = await getSessionWithItems(sessionId);
+  if (!session) {
+    return { success: false, error: 'Session not found', status: 404 };
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Reset stage to MACHINE_CHECKS and status to READY
+    await client.query(
+      `UPDATE sessions
+       SET current_stage = 'MACHINE_CHECKS', operation_status = 'READY', updated_at = NOW()
+       WHERE id = $1`,
+      [sessionId]
+    );
+
+    // 2. Unconfirm all checklist items
+    await client.query(
+      `UPDATE checklist_items
+       SET confirmed = false, confirmed_at = NULL
+       WHERE session_id = $1`,
+      [sessionId]
+    );
+
+    // 3. Clear logs
+    await client.query(
+      `DELETE FROM operation_log
+       WHERE session_id = $1`,
+      [sessionId]
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error resetting session:', err);
+    return { success: false, error: 'Internal server error during reset', status: 500 };
+  } finally {
+    client.release();
+  }
+
+  const updatedSession = await getSessionWithItems(sessionId);
+  return { success: true, session: updatedSession!, status: 200 };
+}
+
+
 

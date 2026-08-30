@@ -17,6 +17,7 @@ function App() {
     advanceStage,
     startOperation,
     stopOperation,
+    resetSession,
     setError
   } = useSession();
 
@@ -48,6 +49,7 @@ function App() {
           session={session}
           confirmItem={confirmItem}
           advanceStage={advanceStage}
+          onReset={resetSession}
           loading={loading}
         />
       );
@@ -57,6 +59,7 @@ function App() {
           session={session}
           confirmItem={confirmItem}
           advanceStage={advanceStage}
+          onReset={resetSession}
           loading={loading}
         />
       );
@@ -66,6 +69,7 @@ function App() {
           session={session}
           confirmItem={confirmItem}
           advanceStage={advanceStage}
+          onReset={resetSession}
           loading={loading}
         />
       );
@@ -74,6 +78,7 @@ function App() {
         <ReadyReviewScreen
           session={session}
           advanceStage={advanceStage}
+          onReset={resetSession}
           loading={loading}
         />
       );
@@ -83,6 +88,7 @@ function App() {
           session={session}
           startOperation={startOperation}
           stopOperation={stopOperation}
+          onReset={resetSession}
           loading={loading}
         />
       );

@@ -334,6 +334,39 @@ body {
   gap: 6px;
 }
 
+.stage-progress-right {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+}
+
+.progress-reset-btn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--status-stopped);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--status-stopped);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+  user-select: none;
+}
+
+.progress-reset-btn:hover {
+  background: var(--status-stopped);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.progress-reset-btn:active {
+  transform: scale(0.95);
+}
+
 .progress-dot {
   width: 10px;
   height: 10px;

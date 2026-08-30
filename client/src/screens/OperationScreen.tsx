@@ -7,6 +7,7 @@ interface ScreenProps {
   session: Session;
   startOperation: () => Promise<void>;
   stopOperation: () => Promise<void>;
+  onReset: () => void;
   loading: boolean;
 }
 
@@ -21,7 +22,7 @@ function formatDuration(totalSeconds: number): string {
   ].join(':');
 }
 
-export function OperationScreen({ session, startOperation, stopOperation, loading }: ScreenProps) {
+export function OperationScreen({ session, startOperation, stopOperation, onReset, loading }: ScreenProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const isRunning = session.operation_status === 'RUNNING';
 
@@ -49,7 +50,7 @@ export function OperationScreen({ session, startOperation, stopOperation, loadin
 
   return (
     <div className="screen-layout">
-      <StageProgress currentStage={session.current_stage} />
+      <StageProgress currentStage={session.current_stage} onReset={onReset} />
 
       <div className="screen-body operation-body">
         <header className="screen-header">

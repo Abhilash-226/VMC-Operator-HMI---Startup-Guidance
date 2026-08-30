@@ -7,10 +7,11 @@ interface ScreenProps {
   session: Session;
   confirmItem: (id: string) => Promise<void>;
   advanceStage: () => Promise<void>;
+  onReset: () => void;
   loading: boolean;
 }
 
-export function MachineChecksScreen({ session, confirmItem, advanceStage, loading }: ScreenProps) {
+export function MachineChecksScreen({ session, confirmItem, advanceStage, onReset, loading }: ScreenProps) {
   const stageItems = (session.checklist_items || []).filter(item => item.stage === 'MACHINE_CHECKS');
   
   // Safety check: verify all items in the stage are confirmed
@@ -18,7 +19,7 @@ export function MachineChecksScreen({ session, confirmItem, advanceStage, loadin
 
   return (
     <div className="screen-layout">
-      <StageProgress currentStage={session.current_stage} />
+      <StageProgress currentStage={session.current_stage} onReset={onReset} />
       
       <div className="screen-body">
         <header className="screen-header">

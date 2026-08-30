@@ -1,14 +1,22 @@
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 async function request(path: string, options: RequestInit = {}) {
-  const url = `${API_BASE}${path}`; 
+  const url = `${API_BASE}${path}`;
+  
+  // Attach token from localStorage if present to bypass third-party cookie restrictions
+  const token = localStorage.getItem('sessionId');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(url, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: 'include', // Automatically send cookies
+    headers,
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -55,4 +63,10 @@ export const api = {
       method: 'POST',
     });
   },
+  resetSession() {
+    return request('/api/session/reset', {
+      method: 'POST',
+    });
+  },
 };
+
