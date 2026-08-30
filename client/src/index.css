@@ -70,7 +70,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, #root {
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -293,6 +294,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -570,6 +572,7 @@ body {
 /* ── Primary action area (Bottom Anchored Centered Box) ─────── */
 .primary-action-container {
   padding: var(--gap-md) var(--gap-lg);
+  padding-bottom: max(var(--gap-md), env(safe-area-inset-bottom));
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
@@ -843,9 +846,22 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-/* ── Responsive: padding adjustments ─────────────────────── */
+/* ── Responsive: padding & mobile optimizations ────────────── */
+@media (max-width: 480px) {
+  .screen-body { padding: var(--gap-sm) var(--gap-md) 0; }
+  .stage-progress-container { padding: var(--gap-sm) var(--gap-md); }
+  .row-confirm-btn {
+    min-width: 110px;
+    padding: 0 10px;
+    font-size: 14px;
+    min-height: 48px;
+  }
+  .standard-item-label, .tool-type-text { font-size: 15px; }
+  .primary-action-btn { font-size: 16px; min-height: 50px; }
+}
+
 @media (min-width: 640px) {
   .screen-body { padding: var(--gap-lg) var(--gap-xl) 0; }
-  .primary-action-container { padding: var(--gap-md) var(--gap-xl); }
+  .primary-action-container { padding: var(--gap-md) var(--gap-xl); padding-bottom: max(var(--gap-md), env(safe-area-inset-bottom)); }
   .stage-progress-container { padding: var(--gap-sm) var(--gap-xl); }
 }
